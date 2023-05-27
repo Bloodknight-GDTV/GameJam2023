@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    private static GameManager Instance;
+    public static GameManager Instance;
+    
+    int manaPool = 0;
 
     private void Awake()
     {
@@ -28,5 +30,12 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         
+    }
+    
+    // 
+    public void AddMana(int mana)
+    {
+        manaPool += mana;
+        Debug.Log($"{mana} Mana was added to players ManaPool; total {manaPool};");
     }
 }
