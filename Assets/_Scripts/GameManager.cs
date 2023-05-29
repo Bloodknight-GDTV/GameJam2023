@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,9 +13,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text gameMessagesText;
     [SerializeField] TMP_Text manaPoolText;
     
+    [SerializeField] float cooldownTime = 10.0f;
+    [SerializeField] float cooldownRemaining = 0f;
+    
     // Dimension switching Variables
     private bool isActiveDimension1;
     private bool isActiveDimension2;
+    
+    int spellCost = 20;
+    
+    
         
     
     
@@ -50,14 +58,16 @@ public class GameManager : MonoBehaviour
         
         // initial loading of dimensions, this should just load dimension 1
         // unless of course you derped out and forgot to set the dimensions correctly
-        switchDimensions();
+        //switchDimensions();
         
-        // Unload all scenes
-        //SceneManager.UnloadSceneAsync("Dimension01");
-        //SceneManager.UnloadSceneAsync("Dimension02");
+        // load all starting scenes
+        SceneManager.LoadSceneAsync("Dimension01", LoadSceneMode.Additive);
+        SceneManager.LoadSceneAsync("PlayGUIScene", LoadSceneMode.Additive);
         
         manaBar.SetMana(manaPool);
         manaPoolText.text = manaPool.ToString();
+        
+        //StartCoroutine(FadeTextToInvisible(2.5f, gameMessagesText));
         
         Debug.Log("GameManager Instance; Start()");
     }
@@ -72,8 +82,20 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            switchDimensions();
+            if (manaPool >= spellCost)
+            {
+                switchDimensions();
+            }
+            else
+            {
+                gameMessagesText.text = "Not enough Mana to switch dimensions";
+            }
+            
         }
+        
+        RemoveLastMessage();
+        
+        
 
     }
     
@@ -81,6 +103,16 @@ public class GameManager : MonoBehaviour
     //**********************************************************************************
     // Custom functions
     //**********************************************************************************
+
+    void RemoveLastMessage()
+    {
+        cooldownRemaining -= Time.deltaTime;
+        if (cooldownRemaining <=0)
+        {
+            gameMessagesText.text = "";
+            cooldownRemaining = cooldownTime;
+        }
+    }
     
     private void switchDimensions()
     {
@@ -98,6 +130,8 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadSceneAsync("Dimension02", LoadSceneMode.Additive);
             SceneManager.UnloadSceneAsync("Dimension01");
         }
+        
+        manaPool -= spellCost;
     }
     
     // 
